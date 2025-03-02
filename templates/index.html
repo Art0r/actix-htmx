@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello, {{ name }}!</title>
+</head>
+<body>
+    <h1>Hello, {{ name }}!</h1>
+
+    <div 
+      hx-get="/api/ping" 
+      hx-trigger='load delay:1s, every 1s'
+      hx-swap='innerHTML'>
+    </div>
+
+    <form 
+      id="pong-form"
+      hx-post="/api/pong"
+      hx-trigger="submit"
+      hx-indicator="#pong-form-indicator"
+      enctype="application/x-www-form-urlencoded"
+      hx-target="#pong-form-response"
+      hx-swap="outerHTML"
+    >
+     <input type="text" id="name" name="name" />
+      <button id="pong-form-button"  type="submit">Send</button>
+    
+    <span id="pong-form-indicator" class="htmx-indicator">Loading</span>
+
+    </form>
+
+    <p id="pong-form-response"></p>
+
+</body>
+<script src="/static/js/htmx.min.js"></script>
+<script>
+  const chargeFileInputForm = document.getElementById("pong-form");
+    
+  if (chargeFileInputForm) {
+    chargeFileInputForm.addEventListener("htmx:afterRequest", (e) => {
+        const button = document.getElementById("pong-form-button");
+        button.disabled = false;
+    });
+
+    chargeFileInputForm.addEventListener("htmx:beforeRequest", (e) => {
+        const button = document.getElementById("pong-form-button");
+        button.disabled = true;
+    });
+  }
+</script>
+</html>
