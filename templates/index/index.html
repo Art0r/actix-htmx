@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .htmx-indicator{
+        opacity:0;
+        transition: opacity 200ms ease-in;
+    }
+    .htmx-request .htmx-indicator{
+        opacity:1;
+    }
+    .htmx-request.htmx-indicator{
+        opacity:1;
+    }
+</style>
+
+<div style="height: 300px; width: 500px;">
+    <span id="users-list-loading-indicator" class="htmx-indicator">Loading</span>
+    <div
+        id="users-list"
+        hx-get="http://localhost:8080/users-table"
+        hx-trigger="load,delay:1s"
+        hx-swap="innerHTML"
+        hx-indicator="#users-list-loading-indicator">
+    </div>
+</div>
+
+<button id="reload-users-list"
+        hx-get="http://localhost:8080/users-table"
+        hx-target="#users-list"
+        hx-swap="innerHTML"
+        hx-indicator="#users-list-loading-indicator"
+        hx-trigger="click">Glica Agui</button>
+
+{% endblock content %}

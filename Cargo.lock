@@ -219,10 +219,13 @@ dependencies = [
  "env_logger",
  "futures",
  "lazy_static",
+ "log",
  "rand",
  "serde",
  "serde_json",
  "tera",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
