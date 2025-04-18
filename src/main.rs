@@ -1,22 +1,38 @@
-mod database;
 mod middlewares;
-pub mod users;
-pub mod errors;
+mod errors;
 mod models;
 mod schema;
+mod services;
+mod views;
+mod forms;
+mod config;
+mod repositories;
+mod routes;
 
 use actix_files::Files;
-use users::users_views::sign_up_user;
 use tera::Tera;
-use actix_web::{middleware::{self, from_fn, Logger}, web::{self}, App, HttpServer};
+use actix_web::{middleware::{self, Logger}, web::{self}, App, HttpServer};
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::SqliteConnection;
+use dotenvy::dotenv;
 use env_logger::Env;
-use users::users_views::{edit_user, index, users_table, get_one_user};
-use crate::database::connection::create_db_pool;
-use crate::middlewares::middlewares::auth_middleware;
+use crate::config::app::AppState;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let pool = create_db_pool();
+    /*
+    sudo apt update
+    sudo apt install libsqlite3-dev
+    */
+
+    dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL").unwrap();
+    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
+
+    let pool = Pool::builder()
+            .test_on_check_out(true)
+            .build(manager)
+            .expect("Failed to create database pool");
 
     let tera = match Tera::new("templates/**/*.html") {
         Ok(t) => t,
@@ -30,8 +46,10 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(pool.clone()))
-            .app_data(web::Data::new(tera.clone()))
+            .app_data(web::Data::new(AppState {
+                db: pool.clone(),
+                tera: tera.clone()
+            }))
             .wrap(middleware::NormalizePath::trim())
             .wrap(Logger::default())
             .wrap(Logger::new("%a %{User-Agent}i"))
@@ -40,15 +58,7 @@ async fn main() -> std::io::Result<()> {
                 .show_files_listing()
                 .use_last_modified(true)
             )
-            .service(
-                web::scope("")
-                    .wrap(from_fn(auth_middleware))
-                    .service(get_one_user)
-                    .service(sign_up_user)
-                    .service(edit_user)
-                    .service(users_table)
-                    .service(index)
-            )
+            .service(routes::user::build_user_routes())
     })
     .bind(("127.0.0.1", 8080))?
     .run()

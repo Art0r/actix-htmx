@@ -3,13 +3,12 @@ use diesel::prelude::*;
 use diesel::query_dsl::QueryDsl;
 use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use crate::schema::schema::users::dsl::*;
-use crate::models::models::{NewUser, User};
 
 use diesel::{SqliteConnection};
 use diesel::associations::HasTable;
-use crate::errors::user_errors::UserError;
-use crate::users::user_forms::{CreateUserForm, EditUserForm};
-
+use crate::errors::user::UserError;
+use crate::forms::user::{CreateUserForm, EditUserForm};
+use crate::models::user::{NewUser, User};
 
 pub struct UserService {
     pool: Pool<ConnectionManager<SqliteConnection>>,
@@ -42,9 +41,9 @@ impl UserService {
         let mut conn = self.get_conn();
 
         let new_user = NewUser {
-            name: form.name.as_str(),
-            email: form.email.as_str(),
-            password: form.password.as_str(),
+            name: form.name.to_string(),
+            email: form.email.to_string(),
+            password: form.password.to_string(),
         };
 
         diesel::insert_into(users::table())
