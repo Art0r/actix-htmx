@@ -1,35 +1,47 @@
 {% extends "base.html" %}
+
+{% block style %}
+{% endblock style %}
+
 {% block content %}
-
-<style>
-    .htmx-indicator{
-        opacity:0;
-        transition: opacity 200ms ease-in;
-    }
-    .htmx-request .htmx-indicator{
-        opacity:1;
-    }
-    .htmx-request.htmx-indicator{
-        opacity:1;
-    }
-</style>
-
-<div style="height: 300px; width: 500px;">
-    <span id="users-list-loading-indicator" class="htmx-indicator">Loading</span>
-    <div
-        id="users-list"
-        hx-get="http://localhost:8080/users-table"
-        hx-trigger="load,delay:1s"
-        hx-swap="innerHTML"
-        hx-indicator="#users-list-loading-indicator">
-    </div>
+<div id="app">
+    <label for="message-input">Message Input</label>
+    <input id="message-input" name="message-input" v-model="message" placeholder="edit me" />
+    <p>[[message]]</p>
 </div>
-
-<button id="reload-users-list"
-        hx-get="http://localhost:8080/users-table"
-        hx-target="#users-list"
-        hx-swap="innerHTML"
-        hx-indicator="#users-list-loading-indicator"
-        hx-trigger="click">Glica Agui</button>
-
 {% endblock content %}
+
+{% block script %}
+<script>
+    const {
+        createApp,
+        ref,
+        onMounted,
+        onUpdated,
+        onUnmounted } = Vue
+
+    createApp({
+        delimiters: ['[[', ']]'],
+        setup() {
+            const message = ref();
+
+            // Lifecycle methods
+            onMounted(() => {
+                console.log('Component mounted!');
+            });
+
+            onUpdated(() => {
+                console.log('Component updated!');
+            });
+
+            onUnmounted(() => {
+                console.log('Component unmounted!');
+            });
+
+            return {
+                message
+            }
+        }
+    }).mount('#app')
+</script>
+{% endblock script %}
