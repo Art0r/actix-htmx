@@ -5,18 +5,6 @@ use crate::config::app::AppState;
 use crate::forms::user::{CreateUserForm, EditUserForm};
 use crate::services::user::UserService;
 
-#[get("/users")]
-async fn get_all_users(
-    app_state: Data<AppState>
-) -> HttpResponse {
-    let user_service = UserService::new(app_state.db.clone());
-
-    match user_service.find_all() {
-        Ok(users) => HttpResponse::Ok().json(users),
-        Err(e) => HttpResponse::InternalServerError().json(format!("Error: {e}")),
-    }
-}
-
 #[get("/users/{uid}")]
 async fn get_one_user(
     app_state: Data<AppState>,

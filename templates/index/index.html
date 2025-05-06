@@ -4,44 +4,17 @@
 {% endblock style %}
 
 {% block content %}
-<div id="app">
-    <label for="message-input">Message Input</label>
-    <input id="message-input" name="message-input" v-model="message" placeholder="edit me" />
-    <p>[[message]]</p>
+<div
+    hx-get="http://localhost:8080/users-table"
+    hx-swap="innerHTML"
+    hx-trigger="load, every 1s"
+>
+
 </div>
 {% endblock content %}
 
 {% block script %}
+<script src="/static/js/common/requests.js"></script>
 <script>
-    const {
-        createApp,
-        ref,
-        onMounted,
-        onUpdated,
-        onUnmounted } = Vue
-
-    createApp({
-        delimiters: ['[[', ']]'],
-        setup() {
-            const message = ref();
-
-            // Lifecycle methods
-            onMounted(() => {
-                console.log('Component mounted!');
-            });
-
-            onUpdated(() => {
-                console.log('Component updated!');
-            });
-
-            onUnmounted(() => {
-                console.log('Component unmounted!');
-            });
-
-            return {
-                message
-            }
-        }
-    }).mount('#app')
 </script>
 {% endblock script %}

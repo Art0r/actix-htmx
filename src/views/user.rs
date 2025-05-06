@@ -6,28 +6,11 @@ use crate::config::app::AppState;
 use crate::models::user::User;
 use crate::services::user::UserService;
 
-#[get("/users-table")]
-async fn users_table(
+#[get("/")]
+async fn index(
     app_data: Data<AppState>,
 ) -> Result<HttpResponse, Error> {
-
-    sleep(Duration::from_secs(2)).await;
-
-    let user_service = UserService::new(app_data.db.clone());
-    let mut context = Context::new();
-
-    match user_service.find_all() {
-        Ok(users) => {
-            context.insert("users", &users);
-            context.insert("error", "");
-        },
-        Err(e) => {
-            context.insert("users", &Vec::<User>::new());
-            context.insert("error", &e.to_string())
-        }
-    }
-
-    let rendered = app_data.tera.render("index/partials/users_table.html", &context)
+    let rendered = app_data.tera.render("index/index.html", &Context::new())
         .map_err(|err| {
             log::error!("Template rendering error: {}", err);
             actix_web::error::ErrorInternalServerError("Template error")
@@ -38,11 +21,22 @@ async fn users_table(
         .body(rendered))
 }
 
-#[get("/")]
-async fn index(
-    app_data: Data<AppState>,
-) -> Result<HttpResponse, Error> {
-    let rendered = app_data.tera.render("index/index.html", &Context::new())
+#[get("/users-table")]
+async fn render_users_table(
+    app_state: Data<AppState>
+) ->  Result<HttpResponse, Error> {
+
+    let mut context = Context::new();
+
+    let user_service = UserService::new(app_state.db.clone());
+
+    let users= match user_service.find_all() {
+        users => users,
+    };
+
+    context.insert("users", users.unwrap().as_slice());
+
+    let rendered = app_state.tera.render("index/partials/users_table.html", &context)
         .map_err(|err| {
             log::error!("Template rendering error: {}", err);
             actix_web::error::ErrorInternalServerError("Template error")
