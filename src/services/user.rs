@@ -4,22 +4,22 @@ use diesel::query_dsl::QueryDsl;
 use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use crate::schema::schema::users::dsl::*;
 
-use diesel::{SqliteConnection};
+use diesel::{PgConnection};
 use diesel::associations::HasTable;
 use crate::errors::user::UserError;
 use crate::forms::user::{CreateUserForm, EditUserForm};
 use crate::models::user::{NewUser, User};
 
 pub struct UserService {
-    pool: Pool<ConnectionManager<SqliteConnection>>,
+    pool: Pool<ConnectionManager<PgConnection>>,
 }
 
 impl UserService {
-    pub fn new(pool: Pool<ConnectionManager<SqliteConnection>>) -> Self {
+    pub fn new(pool: Pool<ConnectionManager<PgConnection>>) -> Self {
         UserService { pool }
     }
 
-    fn get_conn(&self) -> PooledConnection<ConnectionManager<SqliteConnection>> {
+    fn get_conn(&self) -> PooledConnection<ConnectionManager<PgConnection>> {
         self.pool.get().expect("Couldn't get DB connection")
     }
 

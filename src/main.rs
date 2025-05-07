@@ -6,14 +6,13 @@ mod services;
 mod views;
 mod forms;
 mod config;
-mod repositories;
 mod routes;
 
 use actix_files::Files;
 use tera::Tera;
 use actix_web::{middleware::{self, Logger}, web::{self}, App, HttpServer};
 use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::SqliteConnection;
+use diesel::{PgConnection};
 use dotenvy::dotenv;
 use env_logger::Env;
 use crate::config::app::AppState;
@@ -27,7 +26,7 @@ async fn main() -> std::io::Result<()> {
 
     dotenv().ok();
     let database_url = std::env::var("DATABASE_URL").unwrap();
-    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
 
     let pool = Pool::builder()
             .test_on_check_out(true)
