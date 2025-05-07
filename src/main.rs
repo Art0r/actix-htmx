@@ -58,6 +58,7 @@ async fn main() -> std::io::Result<()> {
                 .use_last_modified(true)
             )
             .service(routes::user::build_user_routes())
+            // .service(routes::pet::build_pets_routes())
     })
     .bind(("127.0.0.1", 8080))?
     .run()

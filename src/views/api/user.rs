@@ -1,9 +1,24 @@
-use actix_web::{get, http::header::ContentType, post, put, web::{self}, HttpResponse};
+use actix_web::{get, http::header::ContentType, post, put, web::{self}, Error, HttpResponse};
 use actix_web::web::Data;
 use serde_json::json;
+use tera::Context;
 use crate::config::app::AppState;
 use crate::forms::user::{CreateUserForm, EditUserForm};
 use crate::services::user::UserService;
+
+#[get("/users")]
+async fn get_all_users(
+    app_state: Data<AppState>
+) ->  HttpResponse {
+    
+    let user_service = UserService::new(app_state.db.clone());
+
+    match user_service.find_all() {
+        Ok(users) => HttpResponse::Ok().content_type(ContentType::json()).json(users),
+        Err(e) => HttpResponse::InternalServerError().content_type(ContentType::json())
+            .body(json!({"error": e.to_string()}).to_string()),
+    }
+}
 
 #[get("/users/{uid}")]
 async fn get_one_user(
