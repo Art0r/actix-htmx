@@ -4,6 +4,24 @@ import random
 import requests
 from faker import Faker
 
+
+def delete_all_entries():
+
+    urls = [
+        # "http://localhost:8080/api/users",
+        "http://localhost:8080/api/pets",
+    ]
+
+    for url in urls:
+
+        res = requests.get(url)
+        items = json.loads(res.content.decode())
+
+        for item in items:
+
+            item_id = item.get("id")
+            requests.delete(url + f"/{item_id}")
+
 def populate_users(faker: Faker) -> list[dict]:
 
     users = []
@@ -49,8 +67,9 @@ def main():
 
     faker = Faker()
 
-    users = populate_users(faker)
-    pets = populate_pets(faker, users)
+    delete_all_entries()
+    # users = populate_users(faker)
+    # pets = populate_pets(faker, users)
 
 
 if __name__ == "__main__":

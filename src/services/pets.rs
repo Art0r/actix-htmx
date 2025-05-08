@@ -42,4 +42,21 @@ impl PetsService {
         let mut conn = self.get_conn();
         pets.load::<Pet>(&mut conn)
     }
+    
+    pub fn get_one_pet_by_id(&self, pet_id: i32) -> QueryResult<Option<Pet>> {
+        let mut conn = self.get_conn();
+        pets.filter(id.eq(pet_id))
+            .first(&mut conn)
+            .optional()
+    }
+
+    pub fn delete_pet(&self, pet_id: i32) -> Result<Pet, UserError> {
+        let mut conn = self.get_conn();
+        
+        diesel::delete(pets::table())
+            .filter(id.eq(pet_id))
+            .returning(Pet::as_returning())
+            .get_result(&mut conn)
+            .map_err(UserError::from)
+    }
 }
