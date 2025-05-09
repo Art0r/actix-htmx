@@ -1,9 +1,10 @@
-use actix_web::{get, http::header::ContentType, post, put, web::{self}, Error, HttpResponse};
+use actix_web::{delete, get, http::header::ContentType, post, put, web::{self}, Error, HttpResponse};
 use actix_web::web::Data;
 use serde_json::json;
 use tera::Context;
 use crate::config::app::AppState;
 use crate::forms::user::{CreateUserForm, EditUserForm};
+use crate::services::pets::PetsService;
 use crate::services::user::UserService;
 
 #[get("/users")]
@@ -55,5 +56,19 @@ async fn edit_user(app_state: Data<AppState>,
     match user_service.edit_user(uid, form) {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(e) => HttpResponse::InternalServerError().json(format!("Error: {e}"))
+    }
+}
+
+
+#[delete("/users/{uid}")]
+async fn delete_user(
+    app_state: Data<AppState>,
+    user_id: web::Path<i32>,
+) -> HttpResponse {
+    let user_service = UserService::new(app_state.db.clone());
+
+    match user_service.delete(user_id.into_inner()) {
+        Ok(user) => HttpResponse::Ok().content_type(ContentType::json()).json(user),
+        Err(e) => HttpResponse::InternalServerError().json(format!("Error: {e}")),
     }
 }

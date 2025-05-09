@@ -8,7 +8,9 @@ use diesel::{PgConnection};
 use diesel::associations::HasTable;
 use crate::errors::user::UserError;
 use crate::forms::user::{CreateUserForm, EditUserForm};
+use crate::models::pet::Pet;
 use crate::models::user::{NewUser, User};
+use crate::schema::schema::pets::dsl::pets;
 
 pub struct UserService {
     pool: Pool<ConnectionManager<PgConnection>>,
@@ -63,5 +65,15 @@ impl UserService {
         users.filter(id.eq(uid))
             .first(&mut conn)
             .optional()
+    }
+
+    pub fn delete(&self, user_id: i32) -> Result<User, UserError> {
+        let mut conn = self.get_conn();
+
+        diesel::delete(users::table())
+            .filter(id.eq(user_id))
+            .returning(User::as_returning())
+            .get_result(&mut conn)
+            .map_err(UserError::from)
     }
 }

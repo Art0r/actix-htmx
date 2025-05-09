@@ -8,7 +8,7 @@ from faker import Faker
 def delete_all_entries():
 
     urls = [
-        # "http://localhost:8080/api/users",
+        "http://localhost:8080/api/users",
         "http://localhost:8080/api/pets",
     ]
 
@@ -68,8 +68,8 @@ def main():
     faker = Faker()
 
     delete_all_entries()
-    # users = populate_users(faker)
-    # pets = populate_pets(faker, users)
+    users = populate_users(faker)
+    pets = populate_pets(faker, users)
 
 
 if __name__ == "__main__":
